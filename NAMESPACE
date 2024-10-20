@@ -1,0 +1,6 @@
+exportPattern("^[[:alpha:]]+")
+import(dplyr)
+import(ggplot2)
+import(randomcoloR)
+import(plotrix)
+importFrom("stats", "reorder", "sd")

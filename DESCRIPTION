@@ -1,0 +1,12 @@
+Package: bartenderr
+Type: Package
+Title: Creates a Stacked Bar Graph using Calculated Cumulative Means and Deviation
+Version: 0.1.2
+Author: Chris Brennan
+Maintainer: <chrisbrennan87@gmail.com>
+Description: Calculates the cumulative mean values from a data frame and creates a stacked bar plot based upon those values allowing for error bars to added.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: dplyr, ggplot2, randomcoloR, plotrix
+RoxygenNote: 7.3.2
