@@ -85,6 +85,7 @@ stackedbar2 <- function(df, columns, x, z, standard_error = "sem", graph = "TRUE
     
     
   }
+}
   
   
   
