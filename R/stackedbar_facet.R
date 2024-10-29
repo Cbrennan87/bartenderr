@@ -1,4 +1,4 @@
-globalVariables(c("Mean", "Mean2", "Error", "y", "values"))
+globalVariables(c("Mean", "Error", "y", "values"))
 #` Title: Creates a Stacked Bar Graph using Calculated Cumulative Means and Deviation
 #'
 #' Calculates the cumulative mean values from a data frame and creates a stacked bar plot based upon those values allowing for error bars to added.
@@ -24,7 +24,7 @@ globalVariables(c("Mean", "Mean2", "Error", "y", "values"))
 
 stackedbar2 <- function(df, columns, x, z, standard_error = "sem", graph = "TRUE", y_axis_title = "y", fill_name = "fill") {
   dataset <- df
-
+  
   if(is.character(columns)){
     columns <- as.character(columns)
   }
@@ -43,46 +43,49 @@ stackedbar2 <- function(df, columns, x, z, standard_error = "sem", graph = "TRUE
     dataset$z <- df %>% pull(z)
   }
   
-
+  
   graphing_df <- dataset %>%
     pivot_longer(cols = columns,
                  names_to = "y",
                  values_to = "values")
-
-
-
+  
+  
+  
   if(standard_error == "sem"){
     Graphing_Data <- graphing_df %>% group_by(x, y, z)%>% filter(!is.na(values)) %>% summarise(Mean = mean(values), Error = std.error(values))
-    Graphing_Data2 <- mutate(group_by(Graphing_Data,x), Mean2=cumsum(Mean))
   }
-
+  
   if(standard_error == "sd"){
     Graphing_Data <- graphing_df %>% group_by(x, y, z)%>% filter(!is.na(values)) %>% summarise(Mean = mean(values), Error = sd(values))
-    Graphing_Data2 <- mutate(group_by(Graphing_Data,x), Mean2=cumsum(Mean))  }
-
-  if(graph == "TRUE"){
-    n <- length(unique(Graphing_Data2$y))
-    palette <- randomColor(count = n)
-
-    Stacked_Graph <- ggplot(Graphing_Data2, aes(x = reorder(x, -Mean), Mean, fill = reorder(y, desc(y))))+geom_col(position = "stack", colour = 'black')+
-      scale_y_continuous(name = y_axis_title, expand = c(0,0), limits = c(0,max(Graphing_Data2$Mean2+Graphing_Data2$Error)*1.2))+
-      geom_errorbar(aes(ymin = Mean2-Error, ymax = Mean2+Error), width = 0.25)+
-      scale_x_discrete(name = x_axis_title)+
-      theme_classic()+
-      scale_fill_manual(values = palette, name = fill_name)+
-      facet_wrap(~z)+
-      theme(panel.border = element_rect(color = "black", fill = NA, size = 1))
-
-    return(Stacked_Graph)
+    
+    if(graph == "TRUE"){
+      n <- length(unique(Graphing_Data2$y))
+      palette <- randomColor(count = n)
+      
+      Graphing_Data2 <- Graphing_Data2 %>%
+        arrange(Mean) %>%
+        mutate(cumulative_sum = cumsum(Mean))
+      
+      Stacked_Graph <- ggplot(Graphing_Data2, aes(x = reorder(x, -Mean), Mean, fill = y))+geom_col(position = "stack", colour = 'black')+
+        scale_y_continuous(name = y_axis_title, expand = c(0,0), limits = c(0,max(Graphing_Data2$cumulative_sum+Graphing_Data2$Error)*1.2))+
+        geom_errorbar(aes(ymin = cumulative_sum-Error, ymax = cumulative_sum+Error), width = 0.25)+
+        scale_x_discrete(name = x_axis_title)+
+        theme_classic()+
+        scale_fill_manual(values = palette, name = fill_name)+
+        facet_wrap(~z)+
+        theme(panel.border = element_rect(color = "black", fill = NA, size = 1))
+      
+      return(Stacked_Graph)
+    }
+    
+    if(graph == "FALSE"){
+      return(Graphing_Data2)
+      
+    }
+    
+    
   }
-
-  if(graph == "FALSE"){
-    return(Graphing_Data2)
-
-  }
-
-
-}
-
-
-
+  
+  
+  
+  
